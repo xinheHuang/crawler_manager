@@ -8,7 +8,7 @@ const logUtil = require('./utils/logUtil')
 const responseFormatter = require('./middlewares/responseFormatter')
 const apis = require('./api/routes')
 const historyFallback = require('koa2-history-api-fallback')
-const mqConfig = require('conf/mqConfig')
+const mqConfig = require('./conf/mqConfig')
 
 app.keys = config.keys
 
