@@ -41,6 +41,13 @@ class TaskService {
         //todo 派发任务
     }
 
+    static async finishTask(taskId){
+       const now = new Date()
+        await TASK.update(taskId, {
+            updateTime: now.getTime(),
+            status: TASK.status.FINISH
+        })
+    }
 
     static async getTasks() {
         return (await TASK.findAll()).map(Converter.TaskConverter)
@@ -48,6 +55,16 @@ class TaskService {
 
     static async getTaskById(taskId) {
         return Converter.TaskConverter(await TASK.findById(taskId))
+    }
+
+    static async getRunningTasks(){
+      return (await TASK.findAll({
+        where:{
+          status:{
+            $ne:TASK.status.FINISH
+          }
+        }
+      })).map(Converter.TaskConverter)
     }
 }
 

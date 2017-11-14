@@ -9,10 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-<<<<<<< HEAD
-=======
     "amqplib": "^0.5.2",
->>>>>>> d99b2abd2c427c181b4c12b60550daea4be1d63a
     "debug": "^2.6.3",
     "ioredis": "^3.1.4",
     "koa": "^2.2.0",

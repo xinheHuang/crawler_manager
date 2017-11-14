@@ -25,6 +25,12 @@ module.exports = Object.values(
                 ctx.body = 'success'
             }
         },
-
+        getCurrentRunningTasks:{
+            method: 'get',
+            url: '/tasks/running',
+            async handler(ctx) {
+                ctx.body = await TaskService.getRunningTasks()
+            }
+        }
     }
 )
