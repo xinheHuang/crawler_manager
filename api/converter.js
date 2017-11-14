@@ -3,6 +3,7 @@
  */
 
 class Converter {
+<<<<<<< HEAD
     static UserConverter({ user_id, broker, email, name, position, username, mobile }) {
         return {
             userId: user_id,
@@ -40,6 +41,43 @@ class Converter {
             time,
             content,
             user: Converter.UserConverter(USER)
+=======
+    static ServerConverter(server) {
+        if (!server) return undefined
+        const { server_id, ip, port, type, name, status, updateTime } = server
+        return {
+            serverId: server_id,
+            ip,
+            port,
+            name,
+            type,
+            status,
+            updateTime
+        }
+    }
+
+    static ScriptConverter(script) {
+        if (!script) return undefined
+        const { script_id, fileName, name } = script
+        return {
+            scriptId: script_id,
+            fileName,
+            name
+        }
+    }
+
+    static TaskConverter(task) {
+        if (!task) return undefined
+        const { task_id, status, createTime, updateTime, SERVER, SCRIPT } = task
+        return {
+            taskId: task_id,
+            status,
+            createTime,
+            updateTime,
+            arguments:task.arguments,
+            server: Converter.ServerConverter(SERVER),
+            script: Converter.ScriptConverter(SCRIPT)
+>>>>>>> d99b2abd2c427c181b4c12b60550daea4be1d63a
         }
     }
 }
