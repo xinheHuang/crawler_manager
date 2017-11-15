@@ -33,6 +33,15 @@ module.exports = Object.values(
                 ctx.body = await TaskService.getTasks()
             }
         },
+
+        getTask:{
+            method:'get',
+            url:'/task/:taskId',
+            async handler(ctx){
+                 const { taskId } = ctx.params
+                ctx.body= await TaskService.getTaskById(taskId)
+            }
+        },
         getSubTasks: {
             method: 'get',
             url: '/task/:taskId/subtasks',
@@ -66,8 +75,8 @@ module.exports = Object.values(
             async handler(ctx) {
                 const { taskId } = ctx.params
                 const { name, serverId, scriptId, args, order } = ctx.request.body
-                await TaskService.createSubTask(taskId, name, order, serverId, scriptId, args)
-                ctx.body = 'success'
+                ctx.body=await TaskService.createSubTask(taskId, name, order, serverId, scriptId, args)
+        
             }
         },
 

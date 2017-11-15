@@ -5,7 +5,7 @@
 class Converter {
     static ServerConverter(server) {
         if (!server) return undefined
-        const { server_id, ip, port, type, name, status, updateTime } = server
+        const { server_id, ip, port, type, name, status } = server
         return {
             serverId: server_id,
             ip,
@@ -13,36 +13,37 @@ class Converter {
             name,
             type,
             status,
-            updateTime
         }
     }
 
     static ScriptConverter(script) {
         if (!script) return undefined
-        const { script_id, fileName, name } = script
+        const { script_id, fileName, name, type } = script
         return {
             scriptId: script_id,
             fileName,
-            name
+            name,
+            type
         }
     }
 
     static TaskConverter(task) {
         if (!task) return undefined
-        const { task_id, createTime, updateTime, status, name, interval } = task
+        const { task_id, createTime, updateTime, status, name, interval,SUBTASKs } = task
         return {
             taskId: task_id,
             status,
             createTime,
             updateTime,
             name,
-            interval
+            interval,
+            subTasks:SUBTASKs && SUBTASKs.map(Converter.SubTaskConverter)
         }
     }
 
     static SubTaskConverter(subTask) {
         if (!subTask) return undefined
-        const { task_id, subtask_id, status, createTime, updateTime, SERVER, SCRIPT, name, order } = subTask
+        const { task_id, subtask_id, status, createTime, updateTime, server_id,script_id,SERVER, SCRIPT, name, order } = subTask
         return {
             subtaskId: subtask_id,
             taskId: task_id,
@@ -51,7 +52,9 @@ class Converter {
             updateTime,
             name,
             order,
-            arguments: subTask.arguments,
+            args: subTask.arguments,
+            serverId: server_id,
+            scriptId: script_id,
             server: Converter.ServerConverter(SERVER),
             script: Converter.ScriptConverter(SCRIPT)
         }

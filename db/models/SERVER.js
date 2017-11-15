@@ -10,6 +10,6 @@ const SERVER = database.define('SERVER', {
     type: {type: Sequelize.STRING(45)},
     name: {type: Sequelize.STRING(45)},
     status: {type: Sequelize.STRING(45),allowNull:false},
-    updateTime:{type:Sequelize.BIGINT(20),allowNull:false},
+    // updateTime:{type:Sequelize.BIGINT(20),allowNull:false},
 })
 module.exports = SERVER

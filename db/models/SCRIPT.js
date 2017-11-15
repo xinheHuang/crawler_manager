@@ -7,5 +7,6 @@ const SCRIPT = database.define('SCRIPT', {
     script_id: { type: 'INTEGER', primaryKey: true,autoIncrement: true, },
     fileName: { type: Sequelize.STRING(45), allowNull: false },
     name: {type: Sequelize.STRING(45)},
+    type: { type: Sequelize.STRING(45), allowNull: false },
 })
 module.exports = SCRIPT

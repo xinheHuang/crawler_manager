@@ -54,7 +54,11 @@ class TaskService {
     }
 
     static async getTaskById(taskId) {
-        return Converter.SubTaskConverter(await TASK.findById(taskId))
+        return Converter.TaskConverter(await TASK.findById(taskId,{
+          include:{
+            model:SUBTASK
+          }
+        }))
     }
 
     static async getRunningTasks() {
@@ -94,7 +98,7 @@ class TaskService {
         })
     }
 
-    static async createSubTask(taskId, name, order, serverId, scriptId, args = '') {
+    static async createSubTask(taskId, name='', order=0, serverId=0, scriptId=0, args = '') {
         const now = new Date()
         return await (SUBTASK.create({
             server_id: serverId,
@@ -110,11 +114,10 @@ class TaskService {
     }
 
 
-    static async updateSubTask(subTaskId, name, order, serverId, scriptId, args) {
+    static async updateSubTask(subTaskId, name='', order=0, serverId=0, scriptId=0, args= '') {
         return await SUBTASK.update({
             server_id: serverId,
             script_id: scriptId,
-            task_id: taskId,
             name,
             order,
             arguments: args,
