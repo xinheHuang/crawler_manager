@@ -29,13 +29,29 @@ class Converter {
 
     static TaskConverter(task) {
         if (!task) return undefined
-        const { task_id, status, createTime, updateTime, SERVER, SCRIPT } = task
+        const { task_id, createTime, updateTime, status, name, interval } = task
         return {
             taskId: task_id,
             status,
             createTime,
             updateTime,
-            arguments:task.arguments,
+            name,
+            interval
+        }
+    }
+
+    static SubTaskConverter(subTask) {
+        if (!subTask) return undefined
+        const { task_id, subtask_id, status, createTime, updateTime, SERVER, SCRIPT, name, order } = subTask
+        return {
+            subtaskId: subtask_id,
+            taskId: task_id,
+            status,
+            createTime,
+            updateTime,
+            name,
+            order,
+            arguments: subTask.arguments,
             server: Converter.ServerConverter(SERVER),
             script: Converter.ScriptConverter(SCRIPT)
         }
