@@ -8,20 +8,18 @@ module.exports = Object.values(
     {
         startTask: {
             method: 'post',
-            url: '/task/start',
+            url: '/task/:taskId/start',
             async handler(ctx) {
-                const { serverId, scriptId, args } = ctx.request.body
-                const taskId = await TaskService.startTask(serverId, scriptId, args)
-                ctx.body = {
-                    taskId
-                }
+                const { taskId } = ctx.params
+                await TaskService.startTask(taskId)
+                ctx.body = 'success'
             }
         },
         stopTask: {
             method: 'post',
-            url: '/task/stop',
+            url: '/task/:taskId/stop',
             async handler(ctx) {
-                const { taskId } = ctx.request.body
+                const { taskId } = ctx.params
                 await TaskService.stopTask(taskId)
                 ctx.body = 'success'
             }
@@ -34,12 +32,12 @@ module.exports = Object.values(
             }
         },
 
-        getTask:{
-            method:'get',
-            url:'/task/:taskId',
-            async handler(ctx){
-                 const { taskId } = ctx.params
-                ctx.body= await TaskService.getTaskById(taskId)
+        getTask: {
+            method: 'get',
+            url: '/task/:taskId',
+            async handler(ctx) {
+                const { taskId } = ctx.params
+                ctx.body = await TaskService.getTaskById(taskId)
             }
         },
         getSubTasks: {
@@ -75,8 +73,8 @@ module.exports = Object.values(
             async handler(ctx) {
                 const { taskId } = ctx.params
                 const { name, serverId, scriptId, args, order } = ctx.request.body
-                ctx.body=await TaskService.createSubTask(taskId, name, order, serverId, scriptId, args)
-        
+                ctx.body = await TaskService.createSubTask(taskId, name, order, serverId, scriptId, args)
+
             }
         },
 
@@ -86,11 +84,10 @@ module.exports = Object.values(
             async handler(ctx) {
                 const { subTaskId } = ctx.params
                 const { name, serverId, scriptId, args, order } = ctx.request.body
-                await TaskService.updateSubTask(subTaskId,name, order, serverId, scriptId, args)
+                await TaskService.updateSubTask(subTaskId, name, order, serverId, scriptId, args)
                 ctx.body = 'success'
             }
         },
-
 
 
         getServerList: {

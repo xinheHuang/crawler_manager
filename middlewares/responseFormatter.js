@@ -26,7 +26,7 @@ var url_filter = (pattern) => {
                 ctx.throw(ctx.status)
             }
         } catch (error) {
-            console.log(error)
+            console.log('error: ',error)
             if (reg.test(ctx.originalUrl)) {
                 if (error instanceof ApiError) {
                     ctx.status = 200
@@ -34,9 +34,14 @@ var url_filter = (pattern) => {
                         code: error.code,
                         message: error.message
                     }
-                }
+                }else
                 if (error instanceof BusinessError) {
                     ctx.status = 417
+                    ctx.body = {
+                        message: error.message
+                    }
+                }else{
+                    ctx.status = 500
                     ctx.body = {
                         message: error.message
                     }

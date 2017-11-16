@@ -7,6 +7,11 @@
 var app = require('../app');
 var debug = require('debug')('demo:server');
 var http = require('http');
+// ??WebSocket??:
+const WebSocket = require('ws');
+
+// ??Server?:
+const WebSocketServer = WebSocket.Server;
 
 /**
  * Get port from environment and store in Express.
@@ -20,6 +25,10 @@ var port = normalizePort(process.env.PORT || '3000');
  */
 
 var server = http.createServer(app.callback());
+
+let wss = new WebSocketServer({
+    server: server
+});
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -88,3 +97,16 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+
+wss.on('connection', function (ws) {
+    // ws.upgradeReq???request??:
+    ws.wss = wss;
+});
+
+wss.broadcast = function (data) {
+    wss.clients.forEach(function (client) {
+        client.send(data);
+    });
+};
+global.wss=wss
