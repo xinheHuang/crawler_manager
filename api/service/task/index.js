@@ -35,9 +35,10 @@ open.then(conn => conn.createChannel())
                 case MessageType.LOG:
                     //todo
                     ws.broadcast(JSON.stringify({
+                        scriptName,
                         taskId,
-                        message:message.replace(new RegExp('\\', 'g'),''),
-                    }))
+                        message
+                    },null,' '))
                     console.log('log message ', message)
                     break
                 case MessageType.DONE:
@@ -166,17 +167,18 @@ class TaskService {
 
     static async stopTask(taskId) {
         const now = new Date()
-        const currentSubTasks=TaskService.tasks[taskId][0];
+        if (TaskService.tasks[taskId]){
+          const currentSubTasks=TaskService.tasks[taskId][0];
 
-        await Promise.all(currentSubTasks.map(({ subtaskId, server, script, args }) => {
-            const { ip, port } = server
-            const url = `http://${ip}:${port}/api/task/stop`
-            console.log('send stop', url)
-            return axios.post(url, {
-                subtaskId,
-            })
-        }))
-
+          await Promise.all(currentSubTasks.map(({ subtaskId, server, script, args }) => {
+              const { ip, port } = server
+              const url = `http://${ip}:${port}/api/task/stop`
+              console.log('send stop', url)
+              return axios.post(url, {
+                  subtaskId,
+              })
+          }))
+        }
         await TASK.update( {
             updateTime: now.getTime(),
             status: TASK.status.STOP
