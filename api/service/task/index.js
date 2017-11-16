@@ -36,7 +36,7 @@ open.then(conn => conn.createChannel())
                     //todo
                     ws.broadcast(JSON.stringify({
                         taskId,
-                        message,
+                        message:message.replace(new RegExp('\\', 'g'),''),
                     }))
                     console.log('log message ', message)
                     break
