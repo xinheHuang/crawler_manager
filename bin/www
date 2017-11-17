@@ -102,7 +102,9 @@ function onListening() {
 wss.on('connection', function (ws) {
     // ws.upgradeReq???request??:
     console.log('on connection')
-    ws.send('hi');
+    ws.send(JSON.stringify({
+        message:'hi connect'
+    }));
     ws.wss = wss;
 });
 

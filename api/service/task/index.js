@@ -25,12 +25,12 @@ const MessageType = {
 
 open.then(conn => conn.createChannel())
     .then(ch => ch.assertQueue(queue)
-        .then(ok => ch.consume(queue, msg => {
+        .then(ok => ch.consume(queue, async msg => {
             if (msg !== null) {
                 console.log(msg.content.toString())
                 ch.ack(msg)
-                const ws=global.wss;
-                const { taskId, subtaskId, type, message,scriptName, } = JSON.parse(msg.content.toString())
+                const ws = global.wss
+                const { taskId, subtaskId, type, message, scriptName, } = JSON.parse(msg.content.toString())
                 switch (type) {
                 case MessageType.LOG:
                     //todo
@@ -38,7 +38,7 @@ open.then(conn => conn.createChannel())
                         scriptName,
                         taskId,
                         message
-                    },null,' '))
+                    }, null, ' '))
                     console.log('log message ', message)
                     break
                 case MessageType.DONE:
@@ -55,13 +55,13 @@ open.then(conn => conn.createChannel())
                             }
                         }
 
-                        const doneSubTask=taskSchedule[i];
-                        SUBTASK.update({
-                            status:SUBTASK.status.STOP,
-                            updateTime:new Date().getTime()
-                        },{
-                            where:{
-                               subtask_id:doneSubTask.subtaskId
+                        const doneSubTask = taskSchedule[i]
+                        await SUBTASK.update({
+                            status: SUBTASK.status.STOP,
+                            updateTime: new Date().getTime()
+                        }, {
+                            where: {
+                                subtask_id: doneSubTask.subtaskId
                             }
                         })
 
@@ -69,16 +69,36 @@ open.then(conn => conn.createChannel())
                         if (taskSchedule.length === 0) {  //完成当前并行子任务
                             taskSeq.shift()
                             if (taskSeq.length === 0) { //完成所有子任务
-                                //todo
+                                await TaskService.stopTask(taskId)
+
                             } else {
-                                TaskService.sendSubTasks(taskId, taskSeq[0])
+                                await TaskService.sendSubTasks(taskId, taskSeq[0])
                             }
                         }
 
+                        ws.broadcast(JSON.stringify({
+                            scriptName,
+                            taskId,
+                            message:'完成当前脚本'
+                        }, null, ' '))
+                    }
+                    else{
+                        await TaskService.stopTask(taskId,TASK.status.ERROR)
+
+                        ws.broadcast(JSON.stringify({
+                            scriptName,
+                            taskId,
+                            message:'脚本错误退出'
+                        }, null, ' '))
                     }
                     break
                 case MessageType.ERROR:
-                    //todo
+                    await TaskService.stopTask(taskId,TASK.status.ERROR)
+                    ws.broadcast(JSON.stringify({
+                        scriptName,
+                        taskId,
+                        message:'脚本错误'
+                    }, null, ' '))
                     console.log('error message ', message)
                     break
                 }
@@ -165,30 +185,31 @@ class TaskService {
         }))
     }
 
-    static async stopTask(taskId) {
+    static async stopTask(taskId,status=TASK.status.STOP) {
         const now = new Date()
-        if (TaskService.tasks[taskId]){
-          const currentSubTasks=TaskService.tasks[taskId][0];
-
-          await Promise.all(currentSubTasks.map(({ subtaskId, server, script, args }) => {
-              const { ip, port } = server
-              const url = `http://${ip}:${port}/api/task/stop`
-              console.log('send stop', url)
-              return axios.post(url, {
-                  subtaskId,
-              })
-          }))
+        if (TaskService.tasks[taskId]) {
+            if (TaskService.tasks[taskId].length>0) {
+                const currentSubTasks = TaskService.tasks[taskId][0]
+                await Promise.all(currentSubTasks.map(({ subtaskId, server, script, args }) => {
+                    const { ip, port } = server
+                    const url = `http://${ip}:${port}/api/task/stop`
+                    console.log('send stop', url)
+                    return axios.post(url, {
+                        subtaskId,
+                    })
+                }))
+            }
+            TaskService.tasks[taskId] = null
         }
-        await TASK.update( {
+        await TASK.update({
             updateTime: now.getTime(),
-            status: TASK.status.STOP
-        },{
-            where:{
-                task_id:taskId
+            status
+        }, {
+            where: {
+                task_id: taskId
             }
         })
 
-        //todo 派发任务
     }
 
     static async getTasks() {
@@ -201,6 +222,27 @@ class TaskService {
                 model: SUBTASK
             }
         }))
+    }
+
+    static async removeTaskById(taskId){
+        await SUBTASK.destroy({
+            where:{
+                task_id:taskId
+            }
+        })
+        await TASK.destroy({
+            where:{
+                task_id:taskId
+            }
+        })
+    }
+
+    static async removeSubTaskById(subTaskId){
+        await SUBTASK.destroy({
+            where:{
+                subtask_id:subTaskId
+            }
+        })
     }
 
     static async getRunningTasks() {

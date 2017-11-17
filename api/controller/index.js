@@ -104,6 +104,26 @@ module.exports = Object.values(
             async handler(ctx) {
                 ctx.body = await ScriptService.getScripts()
             }
+        },
+
+        removeTask:{
+            method: 'delete',
+            url: '/task/:taskId',
+            async handler(ctx) {
+                const { taskId } = ctx.params
+                await TaskService.removeTaskById(taskId)
+                ctx.body = 'success'
+            }
+        },
+
+        removeSubTask:{
+            method: 'delete',
+            url: '/subtask/:subTaskId',
+            async handler(ctx) {
+                const { subTaskId } = ctx.params
+                await TaskService.removeSubTaskById(subTaskId)
+                ctx.body = 'success'
+            }
         }
     }
 )
