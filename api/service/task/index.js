@@ -55,7 +55,7 @@ open.then(conn => conn.createChannel())
                             }
                         }
 
-                        const doneSubTask = taskSchedule[i]
+                        const doneSubTask = taskSchedule[index]
                         await SUBTASK.update({
                             status: SUBTASK.status.STOP,
                             updateTime: new Date().getTime()
