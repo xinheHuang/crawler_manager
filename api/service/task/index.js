@@ -27,7 +27,7 @@ open.then(conn => conn.createChannel())
     .then(ch => ch.assertQueue(queue)
         .then(ok => ch.consume(queue, async msg => {
             if (msg !== null) {
-                console.log(msg.content.toString())
+                console.log('receive message ',msg.content.toString())
                 ch.ack(msg)
                 const ws = global.wss
                 const { taskId, subtaskId, type, message, scriptName, } = JSON.parse(msg.content.toString())

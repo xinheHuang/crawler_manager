@@ -9,6 +9,7 @@ const {  username, password, host, port } = config
 const sequelize = new Sequelize('crawler', username, password, {
     host,
     port,
+    logging: false,
     dialect: 'mysql',
     pool: {
         max: 5,
