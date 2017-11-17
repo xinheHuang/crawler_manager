@@ -97,7 +97,7 @@ open.then(conn => conn.createChannel())
                     ws.broadcast(JSON.stringify({
                         scriptName,
                         taskId,
-                        message:`脚本错误 : ${message}`
+                        message:`脚本错误 : ${JSON.stringfy(message)}`
                     }, null, ' '))
                     console.log('error message ', message)
                     break
