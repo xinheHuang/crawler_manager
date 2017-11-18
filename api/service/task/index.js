@@ -36,15 +36,16 @@ open.then(conn => conn.createChannel())
                     //todo
                     ws.broadcast(JSON.stringify({
                         scriptName,
+                        subtaskId,
                         taskId,
                         message
                     }, null, ' '))
-                    console.log('log message ', message)
                     break
                 case MessageType.DONE:
                     console.log('done message ', message)
                     if (message == 0) { //success
                         const taskSeq = TaskService.tasks[taskId]
+                        if (!taskSeq) return;
                         const taskSchedule = taskSeq[0]
                         let index
                         for (let i = 0; i < taskSchedule.length; i++) {
@@ -79,6 +80,7 @@ open.then(conn => conn.createChannel())
                         ws.broadcast(JSON.stringify({
                             scriptName,
                             taskId,
+                            subtaskId,
                             message:'完成当前脚本'
                         }, null, ' '))
                     }
@@ -88,6 +90,7 @@ open.then(conn => conn.createChannel())
                         ws.broadcast(JSON.stringify({
                             scriptName,
                             taskId,
+                            subtaskId,
                             message:`脚本错误退出 : ${message}`
                         }, null, ' '))
                     }
@@ -97,6 +100,7 @@ open.then(conn => conn.createChannel())
                     ws.broadcast(JSON.stringify({
                         scriptName,
                         taskId,
+                        subtaskId,
                         message:`脚本错误 : ${JSON.stringfy(message)}`
                     }, null, ' '))
                     console.log('error message ', message)
