@@ -24,6 +24,15 @@ module.exports = Object.values(
                 ctx.body = 'success'
             }
         },
+        resumeTask:{
+            method: 'post',
+            url: '/task/:taskId/resume',
+            async handler(ctx) {
+                const { taskId } = ctx.params
+                await TaskService.resumeTask(taskId)
+                ctx.body = 'success'
+            }
+        },
         getTasks: {
             method: 'get',
             url: '/tasks',
