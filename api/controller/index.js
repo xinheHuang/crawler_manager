@@ -24,6 +24,26 @@ module.exports = Object.values(
                 ctx.body = 'success'
             }
         },
+
+        startSubTask: {
+            method: 'post',
+            url: '/subtask/:subtaskId/start',
+            async handler(ctx) {
+                const { subtaskId } = ctx.params
+                await TaskService.startSubTaskById(subtaskId)
+                ctx.body = 'success'
+            }
+        },
+        stopSubTask: {
+            method: 'post',
+            url: '/subtask/:subtaskId/stop',
+            async handler(ctx) {
+                const { subtaskId } = ctx.params
+                await TaskService.stopSubTaskById(subtaskId)
+                ctx.body = 'success'
+            }
+        },
+
         resumeTask:{
             method: 'post',
             url: '/task/:taskId/resume',
