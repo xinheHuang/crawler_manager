@@ -192,14 +192,16 @@ class TaskService {
             }, null, ' '))
         }
         console.log('interval', task.interval)
-        const timeout = setTimeout(async () => {
-            console.log('time up')
-            await TaskService.startTask(taskId, true)
-        }, task.interval * 1000)
-        if (TaskService.taskTimeout[taskId]){
+        if (TaskService.taskTimeout[taskId]) {
             clearTimeout(TaskService.taskTimeout[taskId])
         }
-        TaskService.taskTimeout[taskId] = timeout
+        if (task.interval) {
+            const timeout = setTimeout(async () => {
+                console.log('time up')
+                await TaskService.startTask(taskId, true)
+            }, task.interval * 1000)
+            TaskService.taskTimeout[taskId] = timeout
+        }
     }
 
     static async resumeTask(taskId) {
