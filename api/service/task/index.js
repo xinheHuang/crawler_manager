@@ -37,7 +37,7 @@ open.then(conn => conn.createChannel())
                     async msg => {
                         try {
                             if (msg !== null) {
-                                console.log('receive message ', msg.content.toString())
+                                // console.log('receive message ', msg.content.toString())
                                 const ws = global.wss
                                 const { taskId, subtaskId, type, message, scriptName, } = JSON.parse(msg.content.toString())
                                 switch (type) {
@@ -50,7 +50,7 @@ open.then(conn => conn.createChannel())
                                     }, null, ' '))
                                     break
                                 case MessageType.DONE:
-                                    console.log('done message ', message)
+                                    // console.log('done message ', message)
                                     if (message == 0) { //success
                                         await TaskService.updateSubTaskStatus(subtaskId, SUBTASK.status.STOP)
                                         const taskSeq = TaskService.tasks[taskId]
@@ -68,7 +68,7 @@ open.then(conn => conn.createChannel())
 
                                             taskSchedule.splice(index, 1)
                                             if (taskSchedule.length === 0) {  //完成当前并行子任务
-                                                console.log('finished sequence')
+                                                // console.log('finished sequence')
                                                 taskSeq.shift()
                                                 if (taskSeq.length === 0) { //完成所有子任务
                                                     await TaskService.stopTask(taskId, TASK.status.STOP,true)
@@ -102,6 +102,7 @@ open.then(conn => conn.createChannel())
                                     else {
                                         await Promise.all([TaskService.updateSubTaskStatus(subtaskId, SUBTASK.status.ERROR),
                                             TaskService.updateTaskStatus(taskId, TASK.status.ERROR)])
+                                        console.log('error message 脚本错误退出', message)
                                         ws.broadcast(JSON.stringify({
                                             type: MessageType.ERROR,
                                             taskId,
@@ -119,7 +120,7 @@ open.then(conn => conn.createChannel())
                                         subtaskId,
                                         message: `脚本错误 : ${JSON.stringify(message)}`
                                     }, null, ' '))
-                                    console.log('error message ', message)
+                                    console.log('error message 脚本错误', message)
                                     break
                                 }
                             }
@@ -135,7 +136,7 @@ open.then(conn => conn.createChannel())
     })
     .catch((err) => {
         //todo add log
-        console.warn(err)
+        console.log(err)
     })
 
 
@@ -191,13 +192,13 @@ class TaskService {
                 message: `任务启动`
             }, null, ' '))
         }
-        console.log('interval', task.interval)
+        // console.log('interval', task.interval)
         if (TaskService.taskTimeout[taskId]) {
             clearTimeout(TaskService.taskTimeout[taskId])
         }
         if (task.interval) {
             const timeout = setTimeout(async () => {
-                console.log('time up')
+                // console.log('time up')
                 await TaskService.startTask(taskId, true)
             }, task.interval * 1000)
             TaskService.taskTimeout[taskId] = timeout
@@ -210,7 +211,7 @@ class TaskService {
             throw new BusinessError('任务信息丢失!请手动启动任务')
         }
         const taskSchedule = TaskService.tasks[taskId]
-        console.log('resume task schedule: ', taskSchedule)
+        // console.log('resume task schedule: ', taskSchedule)
         await TaskService.sendSubTasks(taskSchedule[0])
         await TaskService.updateTaskStatus(taskId, TASK.status.START)
         const ws = global.wss
@@ -225,7 +226,7 @@ class TaskService {
         }
         if (task.interval) {
             const timeout = setTimeout(async () => {
-                console.log('time up')
+                // console.log('time up')
                 await TaskService.startTask(taskId, true)
             }, task.interval * 1000)
             TaskService.taskTimeout[taskId] = timeout
