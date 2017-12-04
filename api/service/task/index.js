@@ -71,14 +71,14 @@ open.then(conn => conn.createChannel())
                                                 // console.log('finished sequence')
                                                 taskSeq.shift()
                                                 if (taskSeq.length === 0) { //完成所有子任务
-                                                    await TaskService.stopTask(taskId, TASK.status.STOP,true)
+                                                    await TaskService.stopTask(taskId, TASK.status.STOP, true)
                                                     finished = true
                                                 } else {
                                                     const task = await TaskService.getTaskById(taskId)
                                                     if (task.status == 'start') {
                                                         await TaskService.sendSubTasks(taskSeq[0])
                                                     } else {
-                                                        await TaskService.stopTask(taskId, TASK.status.ERROR,true)
+                                                        await TaskService.stopTask(taskId, TASK.status.ERROR, true)
                                                     }
                                                 }
                                             }
@@ -280,21 +280,23 @@ class TaskService {
         })
     }
 
-    static async stopTask(taskId, status = TASK.status.STOP,auto=false) {
+    static async stopTask(taskId, status = TASK.status.STOP, auto = false) {
         if (!auto && TaskService.taskTimeout[taskId]) {
             clearTimeout(TaskService.taskTimeout[taskId])
             TaskService.taskTimeout[taskId] = 0
         }
         const ws = global.wss
-        ws.broadcast(JSON.stringify({
-            type: MessageType.ERROR,
-            taskId,
-            message: `任务手动停止中`
-        }, null, ' '))
+        if (!auto) {
+            ws.broadcast(JSON.stringify({
+                type: MessageType.ERROR,
+                taskId,
+                message: `任务手动停止中`
+            }, null, ' '))
+        }
         if (TaskService.tasks[taskId]) {
             if (TaskService.tasks[taskId].length > 0) {
                 const currentSubTasks = TaskService.tasks[taskId][0]
-                await Promise.all(currentSubTasks.map((subtask) => TaskService.stopSubTask(subtask)))
+                await Promise.all(currentSubTasks.map((subtask) => TaskService.stopSubTask(subtask,auto)))
             }
             // TaskService.tasks[taskId] = null
         }
@@ -306,7 +308,7 @@ class TaskService {
         await TaskService.stopSubTask(subtask)
     }
 
-    static async stopSubTask(subtask) {
+    static async stopSubTask(subtask, auto = false) {
         const { subtaskId, server, taskId } = subtask
         const { ip, port } = server
         const url = `http://${ip}:${port}/api/task/stop`
@@ -314,13 +316,15 @@ class TaskService {
         return axios
             .post(url, { subtaskId, })
             .then(() => {
-                const ws = global.wss
-                ws.broadcast(JSON.stringify({
-                    type: MessageType.START,
-                    taskId,
-                    subtaskId,
-                    message: `子任务手动停止`
-                }, null, ' '))
+                if (!auto) {
+                    const ws = global.wss
+                    ws.broadcast(JSON.stringify({
+                        type: MessageType.START,
+                        taskId,
+                        subtaskId,
+                        message: `子任务手动停止`
+                    }, null, ' '))
+                }
             })
     }
 
