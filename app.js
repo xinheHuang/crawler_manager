@@ -43,4 +43,8 @@ app.use(responseFormatter('^/api'))
 // routes
 app.use(apis.routes()).use(apis.allowedMethods())
 
+app.on('error', function (err, ctx) {
+    console.log(err)
+})
+
 module.exports = app
